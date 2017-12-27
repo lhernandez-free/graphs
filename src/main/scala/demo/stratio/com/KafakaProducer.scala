@@ -18,14 +18,11 @@ object GraphQueryProducer extends App {
   val gSon = new Gson
 
   infiniteLoop(0)
-
   @tailrec
   def infiniteLoop(nEvents:Long):Unit={
-    val msg = gSon.toJson(Conf.Event(rnd.nextLong(), "", ""))
+    val msg = gSon.toJson(Conf.Event(rnd.nextLong(), Conf.neoQuery, ""))
     println(msg)
-    val msg2 = gSon.fromJson(msg,Conf.Event.getClass)
-    println(msg2.toString)
-    val data = new ProducerRecord[String, String](Conf.topic, nEvents.toString, msg.toString())
+    val data = new ProducerRecord[String, String](Conf.topic, nEvents.toString, msg)
     producer.send(data)
     Thread.sleep(100)
     infiniteLoop(nEvents+1L)

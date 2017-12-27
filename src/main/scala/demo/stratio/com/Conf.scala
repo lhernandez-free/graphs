@@ -31,5 +31,6 @@ object Conf {
     .set("spark.neo4j.bolt.url", neoUrl)
 
   final case class Event(userId: Long, neoQuery: String, algorithm: String)
+  val neoQuery = "MATCH (n:User)-[r:OWN]->(m:Product) RETURN id(n) as source, id(m) as target, type(r) as value SKIP {_skip} LIMIT {_limit}"
 
 }

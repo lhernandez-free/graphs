@@ -3,15 +3,17 @@ package demo.stratio.com
 import java.util.Date
 
 import org.apache.spark.streaming._
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
 import org.neo4j.spark._
 import com.google.gson.Gson
+import scala.util.parsing.json.JSON
 
 /**
   * Problem: Make a distribution of kafka's stream but the collect instruction is a full loss of calculations distribution
   * BUT WORKS :)
   */
-object Stream {
+object SparkStream {
 
   def main(args: Array[String]) {
 
@@ -26,23 +28,21 @@ object Stream {
       LocationStrategies.PreferConsistent,
       ConsumerStrategies.Subscribe[String, String](topicsSet, Conf.kafkaParams))
 
+    val lines: DStream[String] = messages.map(x => {
 
-    val lines = messages.map(x => {
-      val gSon = new Gson
-      gSon.fromJson(x.value, Conf.Event.getClass)
+      val requestJson = JSON.parseFull(x.value())
+      requestJson.get.asInstanceOf[Map[String, Any]].get("neoQuery").get.asInstanceOf[String]
     })
 
     lines.foreachRDD(x => {
-      val array = x.collect()
-      array.foreach(x => {
-        println()
-        val graphQuery = "MATCH (n:User)-[r:OWN]->(m:Product) RETURN id(n) as source, id(m) as target, type(r) as value SKIP {_skip} LIMIT {_limit}"
+      val array: Array[String] = x.collect()
+      array.foreach(query => {
         import org.apache.spark.graphx._
         import org.apache.spark.graphx.lib._
-        val graph: Graph[Long, String] = neo.rels(graphQuery).partitions(8).batch(200).loadGraph
+        val graph: Graph[Long, String] = neo.rels(query).partitions(8).batch(200).loadGraph
         val graph2 = PageRank.run(graph, 5)
-        println(new Date()+ " ******* " + graph2.vertices.sortBy(_._2).first())
-        println(x)
+        println(new Date() + " ******* " + graph2.vertices.sortBy(_._2).first())
+        println()
       })
 
     })
