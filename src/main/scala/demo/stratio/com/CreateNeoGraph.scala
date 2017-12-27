@@ -9,7 +9,7 @@ object CreateNeoGraph {
 
   def main(args: Array[String]) {
 
-    val driver = GraphDatabase.driver(Cons.neoUrl, AuthTokens.basic(Cons.neoUser, Cons.neoPass))
+    val driver = GraphDatabase.driver(Conf.neoUrl, AuthTokens.basic(Conf.neoUser, Conf.neoPass))
 
     val session = driver.session
 

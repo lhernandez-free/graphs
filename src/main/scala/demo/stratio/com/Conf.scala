@@ -4,7 +4,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 
-object Cons {
+object Conf {
 
   Logger.getLogger("org").setLevel(Level.OFF)
   Logger.getLogger("akka").setLevel(Level.OFF)
@@ -25,7 +25,7 @@ object Cons {
   )
   val sparkConf = new SparkConf()
     .setAppName("Unnamed")
-    .setMaster("local[2]")
+    .setMaster("local[6]")
     .set("spark.neo4j.bolt.user", neoUser)
     .set("spark.neo4j.bolt.password", neoPass)
     .set("spark.neo4j.bolt.url", neoUrl)
